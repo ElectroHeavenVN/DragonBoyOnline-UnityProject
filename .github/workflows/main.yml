@@ -127,7 +127,7 @@ jobs:
         with:
           files: DBO-UnityProject.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: DBO-UnityProject v${{ steps.check-new-version.outputs.newVer }}
+          name: DBO-UnityProject v${{ needs.check-new-version.outputs.newVer }}
           draft: false
           prerelease: false
-          tag_name: v${{ steps.check-new-version.outputs.newVer }}
+          tag_name: v${{ needs.check-new-version.outputs.newVer }}
