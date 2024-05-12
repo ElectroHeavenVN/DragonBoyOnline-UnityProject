@@ -1,13 +1,14 @@
 name: Tải xuống phiên bản Ngọc Rồng Online mới nhất và tạo dự án Unity
 on:
-  schedule:
-  - cron: '0 0 * * *'
+  # schedule:
+  # - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
   main:
     runs-on: windows-latest
     steps:
+      # to do: check new version
       - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất
         run: |
           $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
