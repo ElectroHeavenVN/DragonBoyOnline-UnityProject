@@ -108,7 +108,7 @@ jobs:
           Remove-Item -Recurse -Force decompiled-code\Assembly-CSharp.csproj
           Remove-Item decompiled-code\Properties\* -Force -Recurse
           Remove-Item -LiteralPath decompiled-code\Properties -Force -Recurse
-          foreach ($file in Get-ChildItem -Path decompiled-code\* -Recurse) {
+          foreach ($file in Get-ChildItem -Path decompiled-code\* -Recurse -File) {
             Write-Host "Moving $($file.FullName) to Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))"
             Move-Item $file.FullName -Destination "Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))" -Force
           }
