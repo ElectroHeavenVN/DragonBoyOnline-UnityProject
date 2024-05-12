@@ -69,6 +69,23 @@ jobs:
           $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
           Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "DragonBoyOnline.zip"
           Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
+      - name: Tải AssemblyCSharpPreprocessor
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: AssemblyCSharpPreprocessor
+          repo: ElectroHeavenVN/Dragonboy-CommunityMod-Builds
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-asmpre.yml
+          workflow_conclusion: success
+          allow_forks: false
+          skip_unpack: true
+      - name: Giải nén AssemblyCSharpPreprocessor
+        run: Expand-Archive -Path AssemblyCSharpPreprocessor.zip -DestinationPath AssemblyCSharpPreprocessor
+      - name: Chạy AssemblyCSharpPreprocessor
+        run: |
+          $assemblyCSharp = Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force
+          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharp.FullName
+          Remove-Item -Force "$($assemblyCSharp.Directory.FullName)\Assembly-CSharp-original.dll"
       - name: Tải xuống AssetRipper.CLI
         uses: dawidd6/action-download-artifact@v3
         with:
@@ -88,23 +105,6 @@ jobs:
       - name: Cài đặt ilspycmd
         run: |
           dotnet tool install ilspycmd -g
-      - name: Tải AssemblyCSharpPreprocessor
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          name: AssemblyCSharpPreprocessor
-          repo: ElectroHeavenVN/Dragonboy-CommunityMod-Builds
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-asmpre.yml
-          workflow_conclusion: success
-          allow_forks: false
-          skip_unpack: true
-      - name: Giải nén AssemblyCSharpPreprocessor
-        run: Expand-Archive -Path AssemblyCSharpPreprocessor.zip -DestinationPath AssemblyCSharpPreprocessor
-      - name: Chạy AssemblyCSharpPreprocessor
-        run: |
-          $assemblyCSharp = Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force
-          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharp.FullName
-          Remove-Item -Force "$($assemblyCSharp.Directory.FullName)\Assembly-CSharp-original.dll"
       - name: Dịch ngược Assembly-CSharp.dll
         run: |
           $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
