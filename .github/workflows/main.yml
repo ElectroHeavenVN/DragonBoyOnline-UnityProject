@@ -59,7 +59,7 @@ jobs:
         run: |
           Remove-Item -Recurse -Force decompiled-code\Assembly-CSharp.csproj
           Remove-Item -LiteralPath decompiled-code\Properties -Force -Recurse
-          Remove-Item -LiteralPath DBO-UnityProject\Assets\Scripts\* -Force -Recurse
+          Remove-Item DBO-UnityProject\Assets\Scripts\* -Force -Recurse
           Move-Item -Path decompiled-code -Destination DBO-UnityProject\Assets\Scripts -Force
       - name: Upload artifact
         uses: actions/upload-artifact@v4
