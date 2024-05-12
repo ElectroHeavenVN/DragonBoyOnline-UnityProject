@@ -46,7 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Lưu cache mới
-        if: steps.check_ver.outputs.cancel == 'false'
+        if: ${{ steps.cache-restore.outputs.cache-hit }}
         uses: actions/cache/save@v4
         with: 
           path: latest-version.txt
