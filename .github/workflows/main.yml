@@ -25,7 +25,7 @@ jobs:
           $session.UserAgent = "GitHub Actions"
           $webHTML = (Invoke-WebRequest -UseBasicParsing -Uri "https://ngocrongonline.com/" -WebSession $session).Content
           $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/pc.png"))
-          $newVer = $webHTML.Substring($webHTML.IndexOf("</span>"") - 3, 3)
+          $newVer = $webHTML.Substring($webHTML.IndexOf("</span>") - 3, 3)
           if (Test-Path latest-version.txt) {
             $ver = Get-Content latest-version.txt
           }
