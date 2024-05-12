@@ -40,13 +40,12 @@ jobs:
             echo cancel=true | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
           }
       - name: Xóa cache trước đó
-        if: ${{ steps.cache-restore.outputs.cache-hit }}
+        if: steps.cache-restore.outputs.cache-hit == 'true'
         continue-on-error: true
         run: gh cache delete "latest-version" --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Lưu cache mới
-        if: ${{ steps.cache-restore.outputs.cache-hit }}
         uses: actions/cache/save@v4
         with: 
           path: latest-version.txt
@@ -109,8 +108,8 @@ jobs:
           Remove-Item decompiled-code\Properties\* -Force -Recurse
           Remove-Item -LiteralPath decompiled-code\Properties -Force -Recurse
           foreach ($file in Get-ChildItem -Path decompiled-code\* -Recurse -File) {
-            Write-Host "Moving $($file.FullName) to Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))"
-            Move-Item $file.FullName -Destination "Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))" -Force
+            Write-Host "Moving $($file.FullName) to DBO-UnityProject\Assets\Scripts\Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))"
+            Move-Item $file.FullName -Destination "DBO-UnityProject\Assets\Scripts\Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))" -Force
           }
       - name: Upload artifact
         uses: actions/upload-artifact@v4
