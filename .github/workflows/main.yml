@@ -1,0 +1,64 @@
+name: Tải xuống phiên bản Ngọc Rồng Online mới nhất và tạo dự án Unity
+on:
+  schedule:
+  - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: windows-latest
+    steps:
+      - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất
+        run: |
+          $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+          $session.UserAgent = "GitHub Actions"
+          $webHTML = (Invoke-WebRequest -UseBasicParsing -Uri "https://ngocrongonline.com/" -WebSession $session).Content
+          $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/android.png"))
+          $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
+          Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "NgocRongOnline.zip"
+      - name: Giải nén tập tin
+        run: Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
+      - name: Tải xuống AssetRipper.CLI
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: AssetRipper.CLI
+          repo: ElectroHeavenVN/AssetRipper
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: publish-cli.yml
+          workflow_conclusion: success
+          branch: master
+          skip_unpack: true
+      - name: Giải nén AssetRipper.CLI
+        run: Expand-Archive -Path AssetRipper.CLI.zip -DestinationPath AssetRipper.CLI
+      - name: Tạo dự án Unity
+        run: |
+          AssetRipper.CLI/AssetRipper.CLI.exe DragonBoyOnline DBO-UnityProject
+      - name: Cài đặt ilspycmd
+        run: |
+          dotnet tool install ilspycmd -g
+      - name: Tải AssemblyCSharpPreprocessor
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: AssemblyCSharpPreprocessor
+          repo: ElectroHeavenVN/Dragonboy-CommunityMod-Builds
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-asmpre.yml
+          workflow_conclusion: success
+      - name: Chạy AssemblyCSharpPreprocessor
+        run: |
+          $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
+          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharpPath
+      - name: Dịch ngược Assembly-CSharp.dll
+        run: |
+          $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
+          ilspycmd -p -lv CSharp7_3 -o decompiled-code $assemblyCSharpPath
+      - name: Di chuyển mã nguồn đã dịch ngược
+        run: |
+          Remove-Item -Recurse -Force decompiled-code\Assembly-CSharp.csproj
+          Remove-Item -LiteralPath decompiled-code\Properties -Force -Recurse
+          Move-Item -Path decompiled-code -Destination DBO-UnityProject\Assets\Scripts -Force
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DBO-UnityProject
+          path: DBO-UnityProject
