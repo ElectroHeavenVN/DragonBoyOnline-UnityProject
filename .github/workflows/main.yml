@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
     steps:
       # to do: check new version
-      - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất
+      - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất và giải nén
         run: |
           $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
           $session.UserAgent = "GitHub Actions"
@@ -17,8 +17,7 @@ jobs:
           $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/android.png"))
           $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
           Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "DragonBoyOnline.zip"
-      - name: Giải nén tập tin
-        run: Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
+          Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
       - name: Tải xuống AssetRipper.CLI
         uses: dawidd6/action-download-artifact@v3
         with:
@@ -45,6 +44,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-asmpre.yml
           workflow_conclusion: success
+          skip_unpack: true
+      - name: Giải nén AssemblyCSharpPreprocessor
+        run: Expand-Archive -Path AssemblyCSharpPreprocessor.zip -DestinationPath AssemblyCSharpPreprocessor
       - name: Chạy AssemblyCSharpPreprocessor
         run: |
           $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
