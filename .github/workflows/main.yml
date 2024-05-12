@@ -10,6 +10,7 @@ jobs:
     runs-on: windows-latest
     outputs:
       cancel: ${{ steps.check_ver.outputs.cancel }}
+      newVer: ${{ steps.check_ver.outputs.newVer }}
     permissions:
       actions: write
     steps:
@@ -36,6 +37,7 @@ jobs:
           if ($newVer -ne $ver) {
             Set-Content -Path latest-version.txt -Value $newVer
             echo cancel=false | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+            echo newVer=$newVer | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
           } else {
             echo cancel=true | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
           }
@@ -125,7 +127,7 @@ jobs:
         with:
           files: DBO-UnityProject.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: aaaa
+          name: DBO-UnityProject v${{ steps.check-new-version.outputs.newVer }}
           draft: false
           prerelease: false
-          tag_name: latest
+          tag_name: v${{ steps.check-new-version.outputs.newVer }}
