@@ -29,14 +29,13 @@ jobs:
           if (Test-Path latest-version.txt) {
             $ver = Get-Content latest-version.txt
           }
+          else {
+            $ver = "000"
+          }
           if ($newVer -ne $ver) {
-            Write-Output "New version detected: $newVer"
-            Write-Output "Old version: $ver"
-            Write-Output "Saving new version to file"
             Set-Content -Path latest-version.txt -Value $newVer
             echo cancel=false | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
           } else {
-            Write-Output "No new version detected"
             echo cancel=true | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
           }
       - name: Xóa cache trước đó
