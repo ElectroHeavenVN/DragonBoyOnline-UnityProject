@@ -102,6 +102,7 @@ jobs:
         run: |
           $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
           ilspycmd -p -lv CSharp7_3 --nested-directories -o decompiled-code $assemblyCSharpPath
+      - run: tree
       - name: Di chuyển mã nguồn đã dịch ngược
         run: |
           Remove-Item -Recurse -Force decompiled-code\Assembly-CSharp.csproj
