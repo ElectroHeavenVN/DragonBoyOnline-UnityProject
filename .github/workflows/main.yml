@@ -28,6 +28,9 @@ jobs:
           workflow: publish-cli.yml
           workflow_conclusion: success
           branch: master
+          skip_unpack: true
+      - name: Giải nén AssetRipper.CLI
+        run: Expand-Archive -Path AssetRipper.CLI.zip -DestinationPath AssetRipper.CLI
       - name: Tạo dự án Unity
         run: |
           AssetRipper.CLI/AssetRipper.CLI.exe DragonBoyOnline DBO-UnityProject
