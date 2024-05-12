@@ -24,7 +24,7 @@ jobs:
         id: check_ver
         run: |
           $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-          $session.UserAgent = "GitHub Actions"
+          $session.UserAgent = "GitHub Actions (${{ github.repository }})"
           $webHTML = (Invoke-WebRequest -UseBasicParsing -Uri "https://ngocrongonline.com/" -WebSession $session).Content
           $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/pc.png"))
           $newVer = $webHTML.Substring($webHTML.IndexOf("</span>") - 3, 3)
@@ -63,7 +63,7 @@ jobs:
       - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất từ trang chủ và giải nén
         run: |
           $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-          $session.UserAgent = "GitHub Actions"
+          $session.UserAgent = "GitHub Actions (${{ github.repository }})"
           $webHTML = (Invoke-WebRequest -UseBasicParsing -Uri "https://ngocrongonline.com/" -WebSession $session).Content
           $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/android.png"))
           $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
