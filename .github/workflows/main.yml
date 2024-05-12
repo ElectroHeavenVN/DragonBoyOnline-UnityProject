@@ -6,6 +6,7 @@ on:
 
 jobs:
   check-new-version:
+    name: Kiểm tra phiên bản
     runs-on: windows-latest
     outputs:
       cancel: ${{ steps.check_ver.outputs.cancel }}
@@ -48,7 +49,7 @@ jobs:
         if: steps.check_ver.outputs.cancel == 'false'
         uses: actions/cache/save@v4
         with: 
-          path: latest-commit.txt
+          path: latest-version.txt
           key: latest-version
   main:
     runs-on: windows-latest
