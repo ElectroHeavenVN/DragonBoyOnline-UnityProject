@@ -17,7 +17,6 @@ jobs:
           $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/android.png"))
           $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
           Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "DragonBoyOnline.zip"
-      - run: tree /f
       - name: Giải nén tập tin
         run: Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
       - name: Tải xuống AssetRipper.CLI
@@ -29,9 +28,6 @@ jobs:
           workflow: publish-cli.yml
           workflow_conclusion: success
           branch: master
-          skip_unpack: true
-      - name: Giải nén AssetRipper.CLI
-        run: Expand-Archive -Path AssetRipper.CLI.zip -DestinationPath AssetRipper.CLI
       - name: Tạo dự án Unity
         run: |
           AssetRipper.CLI/AssetRipper.CLI.exe DragonBoyOnline DBO-UnityProject
