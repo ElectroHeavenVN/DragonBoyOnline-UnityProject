@@ -1,0 +1,82 @@
+name: Tạo dự án Unity Ngọc Rồng
+on:
+  schedule:
+  - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: windows-latest
+    steps:
+      # to do: check new version
+      - name: Tải xuống phiên bản Ngọc Rồng Online mới nhất từ trang chủ và giải nén
+        run: |
+          $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+          $session.UserAgent = "GitHub Actions (${{ github.repository }})"
+          $webHTML = (Invoke-WebRequest -UseBasicParsing -Uri "https://ngocrongonline.com/" -WebSession $session).Content
+          $webHTML = $webHTML.Substring($webHTML.IndexOf("https://ngocrongonline.com/images/android.png"))
+          $link = $webHTML.Substring($webHTML.IndexOf("http://dl.teamobi.com/get/index.php"), 41)
+          Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "DragonBoyOnline.zip"
+          Expand-Archive -Path DragonBoyOnline.zip -DestinationPath DragonBoyOnline
+      - run: tree /f
+      - name: Tải AssemblyCSharpPreprocessor
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: AssemblyCSharpPreprocessor
+          repo: ElectroHeavenVN/Dragonboy-CommunityMod-Builds
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-asmpre.yml
+          workflow_conclusion: success
+          allow_forks: false
+          skip_unpack: true
+      - run: tree /f
+      - name: Giải nén AssemblyCSharpPreprocessor
+        run: Expand-Archive -Path AssemblyCSharpPreprocessor.zip -DestinationPath AssemblyCSharpPreprocessor
+      - run: tree /f
+      - name: Chạy AssemblyCSharpPreprocessor
+        run: |
+          $assemblyCSharp = Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force
+          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharp.FullName
+          Remove-Item -Force "$($assemblyCSharp.Directory.FullName)\Assembly-CSharp-original.dll"
+      - run: tree /f
+      - name: Tải xuống AssetRipper.CLI
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: AssetRipper.CLI
+          repo: ElectroHeavenVN/AssetRipper
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: publish-cli.yml
+          workflow_conclusion: success
+          branch: master
+          allow_forks: false
+          skip_unpack: true
+      - run: tree /f
+      - name: Giải nén AssetRipper.CLI
+        run: Expand-Archive -Path AssetRipper.CLI.zip -DestinationPath AssetRipper.CLI
+      - run: tree /f
+      - name: Tạo dự án Unity
+        run: |
+          AssetRipper.CLI/AssetRipper.CLI.exe DragonBoyOnline DBO-UnityProject
+      - run: tree /f
+      - name: Cài đặt ilspycmd
+        run: |
+          dotnet tool install ilspycmd -g
+      - run: tree /f
+      - name: Dịch ngược Assembly-CSharp.dll
+        run: |
+          $assemblyCSharpPath = (Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force).FullName
+          ilspycmd -p -lv CSharp7_3 --nested-directories -o decompiled-code $assemblyCSharpPath
+      - run: tree /f
+      - name: Di chuyển mã nguồn đã dịch ngược
+        run: |
+          Remove-Item -Recurse -Force decompiled-code\Assembly-CSharp.csproj
+          foreach ($file in Get-ChildItem -Path decompiled-code\* -Recurse -File) {
+            Write-Host "Moving $($file.FullName) to DBO-UnityProject\ExportedProject\Assets\Scripts\Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))"
+            Move-Item $file.FullName -Destination "DBO-UnityProject\ExportedProject\Assets\Scripts\Assembly-CSharp\$($file.FullName.Substring($file.FullName.IndexOf('decompiled-code\') + 16))" -Force
+          }
+      - run: tree /f
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DBO-UnityProject
+          path: DBO-UnityProject\ExportedProject
