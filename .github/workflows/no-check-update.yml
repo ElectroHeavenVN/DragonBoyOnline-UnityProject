@@ -34,7 +34,7 @@ jobs:
       - name: Chạy AssemblyCSharpPreprocessor
         run: |
           $assemblyCSharp = Get-ChildItem -Path DragonBoyOnline -Filter Assembly-CSharp.dll -Recurse -ErrorAction SilentlyContinue -Force
-          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharp.FullName -d -r -c
+          AssemblyCSharpPreprocessor/AssemblyCSharpPreprocessor.exe $assemblyCSharp.FullName -d -r -o
           Remove-Item -Force "$($assemblyCSharp.Directory.FullName)\Assembly-CSharp-original.dll"
       - run: tree /f
       - name: Tải xuống AssetRipper.CLI
