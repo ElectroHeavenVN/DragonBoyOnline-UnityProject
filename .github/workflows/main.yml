@@ -3,8 +3,15 @@ on:
   schedule:
   - cron: '0 0 * * *'
   workflow_dispatch:
-
+permissions:
+  actions: write
 jobs:
+  cronjob-based-github-action:
+    name: Cronjob based github action (keep workflow alive)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gautamkrishnar/keepalive-workflow@v2
   check-new-version:
     name: Kiểm tra phiên bản
     runs-on: windows-latest
