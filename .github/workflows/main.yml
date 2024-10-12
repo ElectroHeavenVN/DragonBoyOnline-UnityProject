@@ -75,7 +75,7 @@ jobs:
           $webHTML = $webHTML.Substring($webHTML.IndexOf("com.bluedragonss.boysss"), 500)
           $link = ($webHTML | Select-String -Pattern "href=`"(https?://dl.teamobi.com/drive/.*)`" " -CaseSensitive -AllMatches).Matches.Groups[1].Value
           Invoke-WebRequest -UseBasicParsing -Uri $link -Method "POST" -WebSession $session -ContentType "application/x-www-form-urlencoded" -Body "submit=1" -OutFile "DragonBoyOnline.rar"
-          & 'C:\Program Files\7-Zip\7z.exe' x DragonBoyOnline.rar DragonBoyOnline
+          & 'C:\Program Files\7-Zip\7z.exe' x DragonBoyOnline.rar -oDragonBoyOnline
       - name: Tải AssemblyCSharpPreprocessor
         uses: dawidd6/action-download-artifact@v3
         with:
